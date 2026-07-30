@@ -1,0 +1,5 @@
+openai>=1.30.0
+PyGithub>=2.3.0
+rich>=13.7.0
+flask>=3.0.0
+gunicorn>=21.0.0
