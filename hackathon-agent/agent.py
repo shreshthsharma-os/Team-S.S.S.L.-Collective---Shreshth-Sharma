@@ -156,10 +156,14 @@ class HackifyAgent:
 
     def _dispatch_tool(self, tool_call) -> str:
         fn_name = tool_call.function.name
+        raw_args = tool_call.function.arguments
         try:
-            fn_args = json.loads(tool_call.function.arguments)
-        except json.JSONDecodeError as e:
+            fn_args = json.loads(raw_args) if raw_args else {}
+        except (json.JSONDecodeError, TypeError) as e:
             return f"Error parsing tool arguments: {e}"
+
+        if not isinstance(fn_args, dict):
+            fn_args = {}
 
         self._log(f"  [tool] Calling: {fn_name}({list(fn_args.keys())})")
 
