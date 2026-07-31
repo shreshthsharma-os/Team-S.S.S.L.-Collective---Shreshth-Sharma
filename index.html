@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon Project Coach</title>
+    <meta name="description" content="An AI-powered coach to guide your hackathon project from idea to demo.">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=2">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <!-- Particle Background -->
+    <canvas id="particles" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
+    <!-- Setup Modal (API Key) -->
+    <div id="setup-modal" class="modal-overlay active">
+        <div class="modal-content glass-panel">
+            <div class="modal-icon"><i class="fa-solid fa-robot"></i></div>
+            <h2>Welcome to HackCoach</h2>
+            <p>Choose your AI provider and enter your API Key. Your key is stored locally in your browser.</p>
+            <select id="api-provider" class="style-select" style="width: 100%; padding: 0.8rem 1rem; font-size: 1rem; margin-top: 1rem;">
+                <option value="groq">Groq (Recommended - Free & Fast)</option>
+                <option value="gemini">Google Gemini</option>
+            </select>
+            <input type="password" id="api-key-input" placeholder="Enter API Key..." />
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                <button id="save-key-btn" class="primary-btn" style="justify-content: center;">Start Coaching <i class="fa-solid fa-arrow-right"></i></button>
+                <button id="demo-mode-btn" class="secondary-btn">Skip (Use Offline Demo Mode)</button>
+            </div>
+            <p class="helper-text" id="provider-help">Get a free Groq key from <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a> — No credit card needed!</p>
+        </div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div id="app-container" class="hidden layout">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar glass-panel">
+            <div class="logo">
+                <i class="fa-solid fa-fire-flame-curved logo-icon"></i>
+                <h2>HackCoach</h2>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-tab="onboarding"><i class="fa-solid fa-lightbulb"></i> Idea & Scope</li>
+                <li data-tab="roadmap"><i class="fa-solid fa-map-location-dot"></i> Roadmap</li>
+                <li data-tab="tasks"><i class="fa-solid fa-list-check"></i> Tasks <span id="slipping-badge" class="badge hidden">!</span></li>
+                <li data-tab="progress"><i class="fa-solid fa-chart-line"></i> Check-in</li>
+                <li data-tab="pitch"><i class="fa-solid fa-microphone"></i> Pitch Builder</li>
+            </ul>
+            <div class="sidebar-footer">
+                <button id="change-key-btn" class="secondary-btn" style="margin-bottom: 0.5rem; width: 100%;"><i class="fa-solid fa-key"></i> Change API Key</button>
+                <button id="reset-btn" class="secondary-btn" style="width: 100%;"><i class="fa-solid fa-rotate-left"></i> Reset Project</button>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Tab: Onboarding / Idea -->
+            <section id="onboarding-tab" class="tab-pane active fade-in">
+                <header class="section-header">
+                    <h1>Project Scope & Idea</h1>
+                    <p>Tell your coach what you are building.</p>
+                </header>
+                
+                <div class="idea-form-container glass-panel">
+                    <form id="idea-form">
+                        <div class="form-group">
+                            <label for="project-name">Project Name</label>
+                            <input type="text" id="project-name" placeholder="e.g. EcoTrack" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="project-idea">The Idea</label>
+                            <textarea id="project-idea" rows="4" placeholder="Describe the problem and your solution..." required></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="team-size">Team Size</label>
+                                <input type="number" id="team-size" min="1" max="10" value="4" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="time-left">Time Left (Hours)</label>
+                                <input type="number" id="time-left" min="1" max="72" value="24" required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="progress-so-far"><i class="fa-solid fa-person-digging" style="color: var(--primary);"></i> Progress So Far (Optional)</label>
+                            <input type="text" id="progress-so-far" placeholder="What have you built so far? (Leave blank if starting from scratch)" />
+                        </div>
+                        <button type="submit" id="analyze-idea-btn" class="primary-btn">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze & Generate Plan
+                        </button>
+                    </form>
+                </div>
+
+                <!-- AI Critique Output -->
+                <div id="critique-container" class="glass-panel mt-4 hidden fade-in">
+                    <h3><i class="fa-solid fa-robot"></i> Coach's Critique</h3>
+                    <div id="critique-content" class="markdown-content"></div>
+                </div>
+            </section>
+
+            <!-- Tab: Roadmap -->
+            <section id="roadmap-tab" class="tab-pane hidden">
+                <header class="section-header">
+                    <h1>Milestone Roadmap</h1>
+                    <p>Your AI-generated path to a working demo.</p>
+                </header>
+                <div class="roadmap-container glass-panel">
+                    <div id="roadmap-loading" class="hidden loader-container">
+                        <div class="spinner"></div>
+                        <p>Generating roadmap...</p>
+                    </div>
+                    <div id="roadmap-content" class="timeline hidden">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div id="roadmap-empty" class="empty-state">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                        <p>Submit your idea first to generate a roadmap.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Tasks -->
+            <section id="tasks-tab" class="tab-pane hidden">
+                <header class="section-header">
+                    <h1>Task Tracker</h1>
+                    <p>Keep track of deliverables. The coach is watching.</p>
+                </header>
+                <div class="tasks-container glass-panel">
+                    <form id="add-task-form" class="task-form">
+                        <input type="text" id="new-task-input" placeholder="Add a new task..." required />
+                        <button type="submit" class="primary-btn"><i class="fa-solid fa-plus"></i></button>
+                    </form>
+                    <ul id="task-list" class="task-list">
+                        <!-- Populated by JS -->
+                    </ul>
+                    <div id="task-empty" class="empty-state hidden">
+                        <p>No tasks yet. Add some to get started!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Progress Check-in -->
+            <section id="progress-tab" class="tab-pane hidden">
+                <header class="section-header">
+                    <h1>Progress Check-in</h1>
+                    <p>Tell the coach what you've done — get honest feedback on where you stand.</p>
+                </header>
+
+                <!-- Progress Overview Bar -->
+                <div class="glass-panel" style="padding: 1.5rem 2rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                        <h3 style="margin: 0;"><i class="fa-solid fa-battery-half" style="color: var(--primary);"></i> Overall Progress</h3>
+                        <span id="progress-percent" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">0%</span>
+                    </div>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 0.8rem; font-size: 0.85rem; color: var(--text-muted);">
+                        <span><i class="fa-solid fa-check-circle" style="color: var(--success);"></i> <span id="tasks-done-count">0</span> done</span>
+                        <span><i class="fa-solid fa-clock" style="color: var(--warning);"></i> <span id="tasks-pending-count">0</span> pending</span>
+                        <span><i class="fa-solid fa-triangle-exclamation" style="color: var(--danger);"></i> <span id="tasks-slipping-count">0</span> slipping</span>
+                    </div>
+                </div>
+
+                <!-- Status Update Form -->
+                <div class="glass-panel" style="padding: 2rem; margin-bottom: 1.5rem;">
+                    <h3><i class="fa-solid fa-clipboard-question" style="color: var(--secondary);"></i> How's it going?</h3>
+                    <form id="checkin-form" style="margin-top: 1rem;">
+                        <div class="form-group">
+                            <label for="checkin-status">Current Status</label>
+                            <select id="checkin-status" class="style-select" style="width: 100%; padding: 0.8rem 1rem; font-size: 0.95rem;">
+                                <option value="on-track">🟢 On Track — Things are going well</option>
+                                <option value="slightly-behind">🟡 Slightly Behind — A bit slow but manageable</option>
+                                <option value="very-behind">🔴 Very Behind — We're struggling</option>
+                                <option value="ahead">🚀 Ahead of Schedule — Crushing it!</option>
+                                <option value="stuck">🧱 Stuck — Blocked on something</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="checkin-update">What have you completed since last check-in?</label>
+                            <textarea id="checkin-update" rows="3" placeholder="e.g. Finished the login page, connected the database, designed the logo..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="checkin-blockers">Any blockers or concerns?</label>
+                            <textarea id="checkin-blockers" rows="2" placeholder="e.g. API is not working, team member is stuck on CSS..."></textarea>
+                        </div>
+                        <button type="submit" id="checkin-submit-btn" class="primary-btn">
+                            <i class="fa-solid fa-stethoscope"></i> Get Coach's Opinion
+                        </button>
+                    </form>
+                </div>
+
+                <!-- AI Feedback Output -->
+                <div id="checkin-feedback" class="glass-panel hidden" style="padding: 1.5rem; border-left: 3px solid var(--secondary);">
+                    <h3><i class="fa-solid fa-robot" style="color: var(--primary);"></i> Coach's Verdict</h3>
+                    <div id="checkin-feedback-content" class="markdown-content"></div>
+                </div>
+            </section>
+
+            <!-- Tab: Pitch -->
+            <section id="pitch-tab" class="tab-pane hidden">
+                <header class="section-header">
+                    <h1>Pitch Builder</h1>
+                    <p>Your 3-minute demo script and structure.</p>
+                </header>
+                <div class="pitch-container glass-panel">
+                    <button id="generate-pitch-btn" class="primary-btn mb-4 hidden">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Pitch Outline
+                    </button>
+                    <div id="pitch-loading" class="hidden loader-container">
+                        <div class="spinner"></div>
+                        <p>Drafting your pitch...</p>
+                    </div>
+                    <div id="pitch-content" class="markdown-content hidden">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div id="pitch-empty" class="empty-state">
+                        <i class="fa-solid fa-microphone"></i>
+                        <p>Submit your idea first to generate a pitch outline.</p>
+                    </div>
+                </div>
+            </section>
+            
+        </main>
+
+        <!-- Right Side: Coach Chat -->
+        <aside class="chat-sidebar glass-panel">
+            <div class="chat-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h3><i class="fa-solid fa-robot"></i> HackCoach</h3>
+                <select id="coach-style" class="style-select">
+                    <option value="general">General Coach</option>
+                    <option value="technical">Technical Mentor</option>
+                    <option value="pitch">Pitch Coach</option>
+                    <option value="product">Product Manager</option>
+                </select>
+            </div>
+            <div id="chat-messages" class="chat-messages">
+                <div class="message coach-msg fade-in">
+                    Hey! I'm your AI Hackathon Coach. Enter your idea and I'll help you plan it out. I'll also remind you if things start slipping.
+                </div>
+            </div>
+            <form id="chat-form" class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Ask for advice, debug help..." required />
+                <button type="submit" class="primary-btn icon-btn"><i class="fa-solid fa-paper-plane"></i></button>
+            </form>
+        </aside>
+    </div>
+
+    <script src="app.js?v=9"></script>
+    <!-- Particle Animation -->
+    <script>
+    (function() {
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+        for (let i = 0; i < 60; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 1.5 + 0.5,
+                dx: (Math.random() - 0.5) * 0.3,
+                dy: (Math.random() - 0.5) * 0.3,
+                color: ['rgba(0,240,255,','rgba(123,45,255,','rgba(255,0,170,'][Math.floor(Math.random()*3)]
+            });
+        }
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = p.color + (0.3 + Math.random()*0.3) + ')';
+                ctx.fill();
+                p.x += p.dx; p.y += p.dy;
+                if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+            });
+            requestAnimationFrame(draw);
+        }
+        draw();
+    })();
+    </script>
+</body>
+</html>
