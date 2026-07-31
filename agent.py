@@ -67,29 +67,21 @@ class HackifyAgent:
         if self._client is None:
             import os
 
-            # Load from config.py first (direct paste), fall back to env vars
-            github_token = ""
-            openai_key   = ""
-            try:
-                import config as _cfg
-                github_token = getattr(_cfg, "GITHUB_TOKEN", "").strip()
-                openai_key   = getattr(_cfg, "OPENAI_API_KEY", "").strip()
-                # Treat placeholder values as unset
-                if github_token in ("", "paste_your_token_here", "ghp_paste_your_token_here"):
-                    github_token = ""
-                if openai_key in ("", "sk_paste_your_key_here"):
-                    openai_key = ""
-            except ImportError:
-                pass
+            gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
+            github_token = os.getenv("GITHUB_TOKEN", "").strip()
+            openai_key = os.getenv("OPENAI_API_KEY", "").strip()
+            groq_key = os.getenv("GROQ_API_KEY", "").strip()
 
-            # Fall back to environment variables
-            gemini_key = os.getenv("GEMINI_API_KEY", "")
-            if not github_token:
-                github_token = os.getenv("GITHUB_TOKEN", "")
-            if not openai_key:
-                openai_key = os.getenv("OPENAI_API_KEY", "")
-
-            if gemini_key:
+            if groq_key:
+                # Groq — instant free API key
+                self._client = OpenAI(
+                    base_url="https://api.groq.com/openai/v1",
+                    api_key=groq_key,
+                )
+                self.model = "llama-3.3-70b-versatile"
+                if self.verbose:
+                    print("[Hackify] Using Groq API (GROQ_API_KEY)")
+            elif gemini_key:
                 # Google Gemini — free tier is very generous
                 self._client = OpenAI(
                     base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
@@ -98,6 +90,10 @@ class HackifyAgent:
                 self.model = "gemini-1.5-flash"
                 if self.verbose:
                     print("[Hackify] Using Google Gemini API (GEMINI_API_KEY)")
+            elif openai_key:
+                self._client = OpenAI(api_key=openai_key)
+                if self.verbose:
+                    print("[Hackify] Using OpenAI API (OPENAI_API_KEY)")
             elif github_token:
                 # GitHub Models — free, powered by your GitHub token
                 self._client = OpenAI(
@@ -106,14 +102,10 @@ class HackifyAgent:
                 )
                 if self.verbose:
                     print("[Hackify] Using GitHub Models (GITHUB_TOKEN)")
-            elif openai_key:
-                self._client = OpenAI(api_key=openai_key)
-                if self.verbose:
-                    print("[Hackify] Using OpenAI API (OPENAI_API_KEY)")
             else:
                 raise RuntimeError(
-                    "No token found. Open config.py and paste your GitHub token "
-                    "into the GITHUB_TOKEN field, then restart the server."
+                    "No API Key Set\n\n"
+                    "Hackify needs a key to power the AI. Please add one to your environment variables."
                 )
         return self._client
 
