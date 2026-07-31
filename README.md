@@ -1,152 +1,71 @@
 # Team-S.S.S.L.-Collective---Shreshth-Sharma
 
-# Hackify — Hackathon Guide Agent
+# HackCoach 🚀
 
-An AI-powered agent that guides hackathon teams from raw idea to winning demo.
-Integrates with GitHub to monitor PRs/issues and alert on blockers in real time.
+**Built by hackers, for hackers.**  
+HackCoach is an AI-powered project management tool designed specifically for 24-48 hour hackathons. It acts as your team's ruthless Project Manager, helping you scope your idea, generate a milestone roadmap, track tasks, and automatically build a winning 3-minute pitch outline before the clock runs out.
 
----
-
-## Features
-
-| Capability | Tool Used |
-|---|---|
-| Concept analysis + feasibility | `analyze_concept` |
-| MoSCoW scope critique | `critique_scope` |
-| Time-boxed build roadmap | `generate_roadmap` |
-| Milestone tracking + alerts | `set_milestones` / `check_milestones` |
-| Blocker & risk logging | `update_tracker` |
-| GitHub PR/issue monitoring | `fetch_github_activity` |
-| GitHub comment alerts | `post_github_comment` / `create_github_issue` |
-| Pitch outline + timing cues | `generate_pitch_outline` |
-| Live demo narration script | `generate_demo_script` |
+Built by **SSSL COLLECTIVE**:
+* Samant Kumar (25BCE11230)
+* Shreshth Sharma (25BCE11231)
+* Sujit Tamil Selvan (25BCE10647)
+* Lavish Vishwakarma (25BCY10092)
 
 ---
 
-## Quick Start
+## 🎯 The Problem
+70% of hackathon teams fail to deliver a working demo because they:
+1. Come up with impossible ideas with no build plan.
+2. Suffer from scope creep (building fancy non-essentials instead of core features).
+3. Fail to track slipping tasks until it's too late.
+4. Throw their pitch deck together at 3 AM.
 
-### 1. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 2. Set environment variables
-
-```bash
-# Required
-export OPENAI_API_KEY="sk-..."
-
-# Optional — enables GitHub integration
-export GITHUB_TOKEN="ghp_..."
-```
-
-On Windows (PowerShell):
-
-```powershell
-$env:OPENAI_API_KEY = "sk-..."
-$env:GITHUB_TOKEN   = "ghp_..."
-```
-
-### 3. Run Hackify
-
-```bash
-# Terminal REPL
-python cli.py
-
-# Web UI at http://localhost:5000
-python app.py
-```
-
-With options:
-
-```bash
-# Use a faster/cheaper model
-python cli.py --model gpt-4o-mini
-
-# Pre-set a GitHub repo for this session
-python cli.py --repo owner/repo-name
-```
+## 💡 The Solution
+HackCoach fixes this by providing:
+* **AI Scope Critique:** Roasts your idea and tells you exactly what to cut to ensure a working demo.
+* **Milestone Roadmap:** Auto-generates a realistic timeline based on your team size and remaining hours.
+* **Task Tracker & Check-ins:** Built-in task tracking that visually warns you when tasks are slipping, complete with an AI coach that gives you actionable advice on your progress.
+* **Pitch Builder:** Automatically generates a structured 3-minute pitch while you code.
+* **Adaptive Personas:** Switch the AI coach to Technical Mentor, Pitch Coach, or Product Manager mode based on what you need help with.
 
 ---
 
-## Slash Commands
-
-| Command | Action |
-|---|---|
-| `/help` | Show all commands and example prompts |
-| `/status` | Display current project state JSON |
-| `/milestones` | Run a milestone health check |
-| `/repo owner/repo` | Set active GitHub repository |
-| `/reset` | Clear conversation history |
-| `/exit` | Quit Hackify |
+## 🛠️ Tech Stack
+This project is built to be extremely lightweight, lightning-fast, and completely zero-dependency.
+* **Frontend:** Semantic HTML5, Vanilla CSS3 (with custom animations, gradients, and canvas particles)
+* **Logic:** Vanilla JavaScript (ES6+) — No React, no Node.js required.
+* **State Management:** Browser LocalStorage (persists data automatically without a database).
+* **AI Engine:** Groq API running Llama 3.3 70B for ultra-fast, near-instant inference (Fallback to Gemini API).
 
 ---
 
-## Example Session
+## 🚀 How to Run the App
 
-```
-You: Analyze my concept: an AI meal planner for college students.
-     24h hackathon, team of 4, prefer Python + React.
+Because HackCoach is a zero-dependency static web app, running it is incredibly simple. You do not need to install Node.js, Python, or any packages.
 
-You: Critique our scope: user auth, meal DB, calorie tracker,
-     social sharing, premium subscription tier
+### 1. Open the App
+Simply double-click the **`index.html`** file in this folder, or drag and drop it into any modern web browser (Chrome, Edge, Firefox, Brave).
 
-You: Generate a roadmap with roles: Frontend, Backend, ML Engineer, Designer
+### 2. Enter your API Key
+When the app opens, it will ask for an API key. 
+* Select **Groq** from the dropdown.
+* Go to [console.groq.com/keys](https://console.groq.com/keys) to get a free API key (no credit card required).
+* Paste the key into the app and click **Start Coaching**.
+* *(Don't want to use an API key? Just click "Skip (Use Offline Demo Mode)" to test the UI!)*
 
-You: Set milestones for a 24h hackathon starting now
-
-You: Generate a 2-minute pitch outline
-
-You: Check GitHub repo myorg/meal-planner for stale PRs
-```
-
----
-
-## Project Structure
-
-```
-hackathon-agent/
-├── agent.py              # Agentic loop (OpenAI tool-calling)
-├── cli.py                # Rich REPL — main entry point
-├── prompts.py            # System prompt + onboarding message
-├── requirements.txt
-├── tools/
-│   ├── github_tools.py   # GitHub fetch/post/create/tracker
-│   ├── project_tools.py  # Concept analysis, scope critique, roadmap
-│   ├── milestone_tools.py# Milestone set/check/update
-│   └── pitch_tools.py    # Pitch outline + demo script
-└── state/
-    └── project_state.json# Auto-created — persistent project state
-```
+### 3. View the Pitch Presentation
+We also built a custom, fully animated HTML pitch deck! 
+* Double-click the **`presentation.html`** file to open it in your browser.
+* Press **F11** to go Full Screen.
+* Use the **Arrow Keys** (Left/Right) to navigate through the interactive slides.
+* Click the **Pencil Icon** at the bottom to enter Edit Mode and change any text on the fly!
 
 ---
 
-## Architecture
+## 📂 Project Structure
+* `index.html` - The main dashboard and application UI.
+* `style.css` - Custom CSS styling, premium animations, and cyberpunk neon theme.
+* `app.js` - Application logic, state management, and AI API calls.
+* `presentation.html` - Interactive 3D presentation pitch deck.
+* `README.md` - You are here!
 
-```
-User ──► cli.py (Rich REPL)
-             │
-             ▼
-         agent.py (HackifyAgent)
-             │  OpenAI chat.completions + tool_choice="auto"
-             ▼
-    ┌────────────────────────────────┐
-    │        Tool Dispatcher         │
-    ├────────────────────────────────┤
-    │ project_tools   │ pitch_tools  │
-    │ milestone_tools │ github_tools │
-    └────────────────────────────────┘
-             │
-             ▼
-    state/project_state.json   ←→   GitHub API
-```
-
----
-
-## Environment Variables
-
-| Variable | Required | Description |
-|---|---|---|
-| `OPENAI_API_KEY` | ✅ Yes | Your OpenAI API key |
-| `GITHUB_TOKEN` | ⬜ Optional | GitHub Personal Access Token (enables repo tools) |
