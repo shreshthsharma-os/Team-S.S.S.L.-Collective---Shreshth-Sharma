@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════
-   HackBot — Shopify-inspired Design System
-   Palette: Shopify Green #008060, Ink #1A1A1A, Surface #F6F6F7
+   Hackify — Blue Blossom Design System
+   Palette: Royal Blue #4361ee, Ink #1A1A1A, Surface #f0f4ff
 ════════════════════════════════════════════════════════════ */
 
 /* ── Reset & tokens ─────────────────────────────────────── */
@@ -8,10 +8,10 @@
 
 :root {
   /* Brand */
-  --green:        #008060;
-  --green-light:  #e6f4f0;
-  --green-dark:   #005c46;
-  --green-hover:  #006e52;
+  --green:        #4361ee;
+  --green-light:  #e8edff;
+  --green-dark:   #2d3fb8;
+  --green-hover:  #3651d4;
 
   /* Ink */
   --ink:          #1a1a1a;
@@ -21,17 +21,17 @@
 
   /* Surface */
   --surface:      #ffffff;
-  --surface-2:    #f6f6f7;
-  --surface-3:    #f1f2f3;
-  --surface-4:    #e3e3e3;
+  --surface-2:    #f0f4ff;
+  --surface-3:    #e8edff;
+  --surface-4:    #d4dcf7;
 
   /* Status */
   --red:          #d82c0d;
   --red-bg:       #fff4f4;
   --yellow:       #b98900;
   --yellow-bg:    #fffaeb;
-  --green-status: #008060;
-  --green-status-bg: #e3f5ee;
+  --green-status: #4361ee;
+  --green-status-bg: #e8edff;
 
   /* Radius */
   --radius-sm:    6px;
