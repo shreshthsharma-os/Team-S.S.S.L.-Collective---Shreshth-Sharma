@@ -78,7 +78,7 @@ class HackifyAgent:
                     base_url="https://api.groq.com/openai/v1",
                     api_key=groq_key,
                 )
-                self.model = "llama-3.3-70b-versatile"
+                self.model = "llama-3.1-8b-instant"
                 if self.verbose:
                     print("[Hackify] Using Groq API (GROQ_API_KEY)")
             elif gemini_key:
